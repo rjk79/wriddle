@@ -3,6 +3,8 @@ import Attempt from './attempt';
 
 import {words} from './nouns'
 
+const GAME_OVER = 'Sorry, play again? 🥺'
+
 const Board = () => {
     const [answer, setAnswer] = useState('')
     const [attempts, setAttempts] = useState([])
@@ -10,8 +12,7 @@ const Board = () => {
     const [feedback, setFeedback] = useState('')
 
     useEffect(() => {
-        const index = Math.floor(Math.random() * words.length - 1)
-        setAnswer(words[index].toLowerCase())
+        resetWord()
     }, [])
 
     const attemptItems = attempts.map((attempt, idx) => (
@@ -23,6 +24,12 @@ const Board = () => {
     function newGame() {
         setAttempts([])
         setCurrent('')
+        resetWord()
+    }
+
+    function resetWord() {
+        const index = Math.floor(Math.random() * words.length - 1)
+        setAnswer(words[index].toLowerCase())
     }
 
     function getColor(char, index) {
@@ -35,6 +42,10 @@ const Board = () => {
 
     async function onSubmit(e) {
         e.preventDefault()
+
+        if (feedback === GAME_OVER) {
+            return
+        }
 
         await checkWord().then(res => {
                 if (res.status === 404) {
@@ -52,7 +63,7 @@ const Board = () => {
                         if (current === answer) {
                             setFeedback('You win!')
                         } else if (attempts.length === 6) {
-                            setFeedback('Sorry, play again? 🥺')
+                            setFeedback(GAME_OVER)
                         }
                     } else {
                         setFeedback('Attempt must be 5 letters')
@@ -62,20 +73,6 @@ const Board = () => {
     }
 
     async function checkWord() {
-        // var request = new XMLHttpRequest()
-        // await request.open('GET', `https://api.dictionaryapi.dev/api/v2/entries/en/${current}`, true)
-        // request.onload = function () {
-        //     var data = JSON.parse(this.response)
-        //     console.log(data)
-        //     if (request.status >= 200 && request.status < 400) {
-        //         const isWord = data.title !== 'No Definitions Found'
-        //         setIsValidWord(isWord)
-        //     } else {
-        //         console.log('error')
-        //     }
-        // }
-
-        // await request.send()
         const request = new Request(
             `https://api.dictionaryapi.dev/api/v2/entries/en/${current}`,
             {
@@ -92,12 +89,19 @@ const Board = () => {
             <form onSubmit={onSubmit}>
                 <input
                     value={current}
-                    onChange={e => setCurrent(e.target.value)}
+                    onChange={e => setCurrent(e.target.value.toLowerCase())}
                     placeholder="Choose a 5 letter word"
                 />
+                <input type="submit" value="Submit"/>
             </form>
             <button onClick={newGame}>New Game</button>
-            {feedback}
+            <div className="feedback">{feedback}</div>
+            <div>
+                Try to guess the word! It's like Mastermind and you have 6 guesses.
+            </div>
+            <a className="github-link" href="https://github.com/rjk79" target="_blank">
+                *My Github*
+            </a>
         </div>
     )
 }
