@@ -10,9 +10,17 @@ input, button {
   margin-left: 5px;
 }
 
+button,
+[type='submit'] {
+  background: white;
+  border-radius: 8px;
+  outline: none;
+  border: 1px solid black;
+  cursor: pointer;
+}
+
 .feedback {
   margin: 5px 0;
-  color: red;
 }
 
 a {

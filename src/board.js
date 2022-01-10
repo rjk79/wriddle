@@ -3,7 +3,8 @@ import Attempt from './attempt';
 
 import {words} from './nouns'
 
-const GAME_OVER = 'Sorry, play again? 🥺'
+const GAME_LOST = 'Sorry, play again? 🥺'
+const GAME_WON = 'YOU WIN! 🥳'
 
 const Board = () => {
     const [answer, setAnswer] = useState('')
@@ -21,9 +22,21 @@ const Board = () => {
         </div>
     ))
 
+    function getBlankItems() {
+        const items = []
+        for (let i = attempts.length; i < 6; i++) {
+            items.push(
+                <div key={i}>_ _ _ _ _</div>
+            )
+        }
+
+        return items
+    }
+
     function newGame() {
         setAttempts([])
         setCurrent('')
+        setFeedback('')
         resetWord()
     }
 
@@ -43,32 +56,32 @@ const Board = () => {
     async function onSubmit(e) {
         e.preventDefault()
 
-        if (feedback === GAME_OVER) {
+        if ([GAME_LOST, GAME_WON].includes(feedback)) {
             return
         }
 
         await checkWord().then(res => {
-                if (res.status === 404) {
-                    setFeedback(`Sorry, ${current} is not a word`)
-                } else {
-                    if (current.length === 5) {
-                        const coloredCurrent = current.split('').map((char, index) => <span key={index}
-                            style={{ color: getColor(char, index)}}
-                        >{char}</span>)
+            if (res.status === 404) {
+                setFeedback(`Sorry, ${current} is not a word`)
+            } else {
+                if (current.length === 5) {
+                    const coloredCurrent = current.split('').map((char, index) => <span key={index}
+                        style={{ color: getColor(char, index)}}
+                    >{char}</span>)
+                    const newAttempts = [...attempts, coloredCurrent]
 
-                        setAttempts([...attempts, coloredCurrent])
-                        setCurrent('')
-                        setFeedback('')
-
-                        if (current === answer) {
-                            setFeedback('You win!')
-                        } else if (attempts.length === 6) {
-                            setFeedback(GAME_OVER)
-                        }
-                    } else {
-                        setFeedback('Attempt must be 5 letters')
+                    setAttempts(newAttempts)
+                    setCurrent('')
+                    setFeedback('')
+                    if (current === answer) {
+                        setFeedback(GAME_WON)
+                    } else if (newAttempts.length === 6) {
+                        setFeedback(GAME_LOST)
                     }
+                } else {
+                    setFeedback('Attempt must be 5 letters')
                 }
+            }
         })
     }
 
@@ -86,6 +99,7 @@ const Board = () => {
     return (
         <div>
             {attemptItems}
+            {getBlankItems()}
             <form onSubmit={onSubmit}>
                 <input
                     value={current}
@@ -95,7 +109,9 @@ const Board = () => {
                 <input type="submit" value="Submit"/>
             </form>
             <button onClick={newGame}>New Game</button>
-            <div className="feedback">{feedback}</div>
+            <div className="feedback" style={{
+                color: feedback === GAME_WON ? 'black' : 'red',
+            }}>{feedback}</div>
             <div>
                 Try to guess the word! It's like Mastermind and you have 6 guesses.
             </div>
