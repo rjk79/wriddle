@@ -1,14 +1,30 @@
 import React, {useState, useEffect} from 'react'
 import Attempt from './attempt';
 
-import {words} from './nouns'
+import {nouns} from './nouns'
+import {adjectives} from './adjectives'
+import {verbs} from './verbs'
+
+const words = [
+    ...nouns,
+    ...adjectives,
+    ...verbs,
+]
 
 const GAME_LOST = 'Sorry, play again? 🥺'
 const GAME_WON = 'YOU WIN! 🥳'
 
 const CORRECT_POSITION = 'green'
-const WRONG_POSITION = 'orange'
+const WRONG_POSITION = 'darkorange'
 const WRONG = 'gray'
+const KEYBOARD_WRONG_COLOR = 'black'
+const KEYBOARD_UNGUESSED_COLOR = 'grey'
+
+const keyboardRows = [
+    'qwertyuiop'.split(''),
+    'asdfghjkl'.split(''),
+    'zxcvbnm'.split(''),
+]
 
 const Board = () => {
     const [answer, setAnswer] = useState('')
@@ -21,6 +37,14 @@ const Board = () => {
     useEffect(() => {
         resetWord()
     }, [])
+
+    useEffect(() => {
+        if (feedback === GAME_WON) {
+            setStreak(streak + 1)
+        } else if (feedback === GAME_LOST) {
+            setStreak(0)
+        }
+    }, [feedback])
 
     const attemptItems = attempts.map((attempt, idx) => (
         <div key={idx} className="word">
@@ -42,12 +66,6 @@ const Board = () => {
     }
 
     function newGame() {
-        if (feedback === GAME_WON) {
-            setStreak(streak + 1)
-        } else {
-            setStreak(0)
-        }
-
         setAttempts([])
         setCurrent('')
         setFeedback('')
@@ -120,12 +138,6 @@ const Board = () => {
     }
 
     function getKeyboard() {
-       const keyboardRows = [
-           'qwertyuiop'.split(''),
-           'asdfghjkl'.split(''),
-           'zxcvbnm'.split(''),
-       ]
-
        return <div className="keyboard">
            {keyboardRows.map((row, index) =>
                 <div>
@@ -147,15 +159,16 @@ const Board = () => {
     }
 
     function getKeyboardRow(row) {
-        const guessedLetters = attempts.map(attempt => (
-            attempt.map(charItem => charItem.props.children).join('')
-        )).join('')
+        const letterColorMap = getLetterColorMap()
 
         return row.map(char =>
         <button
             className="keyboard-character"
             style={{
-                backgroundColor: guessedLetters.includes(char) ? 'lightgrey' : 'white'
+                color: letterColorMap[char] === KEYBOARD_UNGUESSED_COLOR
+                    ? 'black'
+                    : 'white',
+                backgroundColor: letterColorMap[char] !== KEYBOARD_UNGUESSED_COLOR ? letterColorMap[char] : 'white',
             }}
             onClick={() => setCurrent(current + char)}
         >
@@ -163,17 +176,61 @@ const Board = () => {
         </button>)
     }
 
+    function getLetterColorMap() {
+        const allLetters = keyboardRows.reduce((acc, curr) => (
+            [...acc, ...curr]
+        ), [])
+
+        const letterColorMap = {}
+
+        const LETTER_RANKING = [
+            KEYBOARD_UNGUESSED_COLOR,
+            KEYBOARD_WRONG_COLOR,
+            WRONG_POSITION,
+            CORRECT_POSITION,
+        ]
+
+        allLetters.forEach(char => letterColorMap[char] = KEYBOARD_UNGUESSED_COLOR)
+
+        attempts.forEach(attempt => {
+            const attemptLetters = attempt.map(el => el.props.children)
+
+            attemptLetters.forEach((char, index) => {
+                let color = getColor(char, index);
+                if (color === WRONG) color = KEYBOARD_WRONG_COLOR
+                const currentColor = letterColorMap[char];
+
+                if (LETTER_RANKING.indexOf(color) > LETTER_RANKING.indexOf(currentColor)) {
+                    letterColorMap[char] = color
+                }
+            })
+        })
+
+        return letterColorMap;
+    }
+
     return (
         <div className="game">
             <h1 className="header">Wriddle 🎉</h1>
             <div>
-                Win Streak: <strong>{streak}</strong>
-                {Array(streak).fill(<span>🔥</span>)}
+                <span>
+                    Win Streak: <strong>{streak}</strong>
+                    {Array(streak).fill(<span>🔥</span>)}
+                </span>
             </div>
             <div className="words">
                 {attemptItems}
                 {getBlankItems()}
             </div>
+            <div className="feedback" style={{
+                color: feedback === GAME_WON ? 'black' : 'red',
+                fontWeight: feedback === GAME_WON ? '700' : '400',
+            }}>
+                {feedback}
+            </div>
+            {feedback === GAME_LOST && <div style={{ color: 'red' }}>
+                {`The word was '${answer}'.`}
+            </div>}
             <form onSubmit={onSubmit}>
                 <input
                     value={current.toUpperCase()}
@@ -182,33 +239,36 @@ const Board = () => {
                     type="text"
                 />
             </form>
-            <button onClick={onSubmit}>Submit Word</button>
-            <div>
-                <button onClick={newGame}>New Game</button>
-            </div>
-            <div className="feedback" style={{
-                color: feedback === GAME_WON ? 'black' : 'red',
-            }}>{feedback}</div>
-            <div style={{color: 'red'}}>
-                {feedback === GAME_LOST && `The word was '${answer}'.`}
+            <div className="game-buttons">
+                <button onClick={onSubmit}>Submit Word</button>
+                {[GAME_WON, GAME_LOST].includes(feedback) && <button onClick={newGame}>New Game</button>}
             </div>
 
             {getKeyboard()}
 
-            <button onClick={() => setShowInstructions(!showInstructions)}>Show/Hide Instructions</button>
-            {showInstructions && <div className="instructions">
-                <h2>Instructions:</h2>
-                <div>
-                    Try to guess the word! It's like Mastermind and you have 6 guesses. After you guess:
-                    <ul>
-                        <li>If a letter is not in the word, it will appear <span style={{color: WRONG}}>{WRONG}</span></li>
-                        <li>If a letter is in the word but is not in the right spot, it will appear <span style={{color: WRONG_POSITION}}>{WRONG_POSITION}</span></li>
-                        <li>If a letter is in the word and in the right spot, it will appear <span style={{color: CORRECT_POSITION}}>{CORRECT_POSITION}</span></li>
-                    </ul>
-                </div>
-            </div>}
-            <a className="github-link" href="https://github.com/rjk79" target="_blank">
-                {'My Github >>>'}
+            {
+                showInstructions ? (
+                    <div className="instructions">
+                        <h2>Instructions:</h2>
+                        <div className="hide" onClick={() => setShowInstructions(false)}>X</div>
+                        <div>
+                            Try to guess the word! It's like Mastermind and you have 6 guesses. After you guess:
+                            <ul>
+                                <li>If a letter is not in the word, it will appear <strong style={{color: WRONG}}>{WRONG}</strong></li>
+                                <li>If a letter is in the word but is not in the right spot, it will appear <strong style={{ color: WRONG_POSITION }}>orange</strong></li>
+                                <li>If a letter is in the word and in the right spot, it will appear <strong style={{color: CORRECT_POSITION}}>{CORRECT_POSITION}</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                ) : (
+                    <button onClick={() => setShowInstructions(true)}>Show Instructions</button>
+                )
+            }
+            <a className="social-link" href="https://github.com/rjk79" target="_blank">
+                <img src="github.png"/>
+            </a>
+            <a className="social-link" href="https://www.linkedin.com/in/robert-ku-b9464461" target="_blank">
+                <img src="linkedin.png"/>
             </a>
         </div>
     )

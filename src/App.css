@@ -73,9 +73,16 @@ button,
 }
 
 .instructions {
+  position: relative;
   padding: 5px;
   border: 1px solid black;
   border-radius: 8px;
+}
+
+.instructions .hide {
+  position: absolute;
+  right: 5px;
+  top: 5px;
 }
 
 .keyboard {
@@ -112,6 +119,16 @@ button,
   border-radius: 8px;
   height: 40px;
   width: 60px;
+}
+
+.game-buttons button {
+  background-color: lightgrey;
+  border: none;
+}
+
+.social-link img {
+  margin: 10px;
+  height: 30px;
 }
 
 @media (max-width: 480px) {

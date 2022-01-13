@@ -1,4 +1,4 @@
-export const words = [
+export const nouns = [
 'Abuse',
 'Adult',
 'Agent',
@@ -70,7 +70,6 @@ export const words = [
 'Group',
 'Guide',
 'Heart',
-'Henry',
 'Horse',
 'Hotel',
 'House',
@@ -153,7 +152,6 @@ export const words = [
 'Shirt',
 'Shock',
 'Sight',
-'Simon',
 'Skill',
 'Sleep',
 'Smile',
@@ -181,7 +179,6 @@ export const words = [
 'Sugar',
 'Table',
 'Taste',
-'Terry',
 'Theme',
 'Thing',
 'Title',
