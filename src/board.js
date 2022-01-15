@@ -36,11 +36,17 @@ const Board = () => {
 
     useEffect(() => {
         resetWord()
+        loadStreak()
     }, [])
 
     useEffect(() => {
         if (feedback === GAME_WON) {
-            setStreak(streak + 1)
+            const newStreak = streak + 1
+            setStreak(newStreak)
+            saveStreak(newStreak)
+            window.confetti({
+                particleCount: 150,
+            });
         } else if (feedback === GAME_LOST) {
             setStreak(0)
         }
@@ -51,6 +57,18 @@ const Board = () => {
             {attempt}
         </div>
     ))
+
+    function loadStreak() {
+        const streak = window.localStorage.getItem('wriddleStreak')
+
+        if (streak) {
+            setStreak(Number(streak))
+        }
+    }
+
+    function saveStreak(streak) {
+        window.localStorage.setItem('wriddleStreak', streak)
+    }
 
     function getBlankItems() {
         const items = []
@@ -73,7 +91,7 @@ const Board = () => {
     }
 
     function resetWord() {
-        const index = Math.floor(Math.random() * words.length - 1)
+        const index = Math.floor(Math.random() * words.length)
         setAnswer(words[index].toLowerCase())
     }
 
