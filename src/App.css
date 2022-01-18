@@ -3,6 +3,7 @@
   align-items: center;
   justify-content: center;
   padding: 10px;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .game {
@@ -22,7 +23,7 @@
 .word {
   width: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
 }
 
 .character {
@@ -34,8 +35,7 @@
   margin: 7px 2px;
   font-weight: 700;
   text-transform: uppercase;
-  border: 1px solid black;
-  border-radius: 8px;
+  border: 2px solid black;
   height: 40px;
   width: 40px;
 }

@@ -37,7 +37,6 @@ export const nouns = [
 'Crown',
 'Cycle',
 'Dance',
-'Death',
 'Depth',
 'Doubt',
 'Draft',

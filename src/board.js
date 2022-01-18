@@ -1,5 +1,4 @@
 import React, {useState, useEffect} from 'react'
-import Attempt from './attempt';
 
 import {nouns} from './nouns'
 import {adjectives} from './adjectives'
@@ -16,8 +15,7 @@ const GAME_WON = 'YOU WIN! 🥳'
 
 const CORRECT_POSITION = 'green'
 const WRONG_POSITION = 'darkorange'
-const WRONG = 'gray'
-const KEYBOARD_WRONG_COLOR = 'black'
+const WRONG = 'black'
 const KEYBOARD_UNGUESSED_COLOR = 'grey'
 
 const keyboardRows = [
@@ -33,6 +31,7 @@ const Board = () => {
     const [feedback, setFeedback] = useState('')
     const [streak, setStreak] = useState(0)
     const [showInstructions, setShowInstructions] = useState(true)
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         resetWord()
@@ -49,14 +48,34 @@ const Board = () => {
             });
         } else if (feedback === GAME_LOST) {
             setStreak(0)
+            saveStreak(0)
         }
     }, [feedback])
 
-    const attemptItems = attempts.map((attempt, idx) => (
-        <div key={idx} className="word">
-            {attempt}
-        </div>
-    ))
+
+
+    function getWords() {
+        const items = []
+        for (let i = 0; i < 6; i++) {
+            const newItem = i < attempts.length
+                ? (
+                    <div key={i} className="word revealed">
+                        {attempts[i]}
+                    </div>
+                )
+                : (
+                    <div key={i} className="word">
+                        {Array(5).fill(<span className="character"></span>)}
+                    </div>
+                )
+
+            items.push(
+                newItem
+            )
+        }
+
+        return items;
+    }
 
     function loadStreak() {
         const streak = window.localStorage.getItem('wriddleStreak')
@@ -68,19 +87,6 @@ const Board = () => {
 
     function saveStreak(streak) {
         window.localStorage.setItem('wriddleStreak', streak)
-    }
-
-    function getBlankItems() {
-        const items = []
-        for (let i = attempts.length; i < 6; i++) {
-            items.push(
-                <div key={i} className="word">
-                    {Array(5).fill(<span className="character"></span>)}
-                </div>
-            )
-        }
-
-        return items
     }
 
     function newGame() {
@@ -110,34 +116,40 @@ const Board = () => {
             return
         }
 
-        await checkWord().then(res => {
-            if (res.status === 404) {
-                setFeedback(`Sorry, ${current} is not a word`)
-            } else {
-                if (current.length === 5) {
-                    const coloredCurrent = current.split('').map((char, index) =>
-                        <span key={index}
-                            style={{ color: getColor(char, index)}}
-                            className="character"
-                        >
-                            {char}
-                        </span>
-                    )
-                    const newAttempts = [...attempts, coloredCurrent]
+        setLoading(true)
+        const res = await checkWord();
+        setLoading(false)
+        if (res.status === 404) {
+            setFeedback(`Sorry, ${current} is not a word`)
+        } else if (res.status === 200) {
+            if (current.length === 5) {
+                const coloredCurrent = current.split('').map((char, index) =>
+                    <span key={index}
+                        style={{
+                            backgroundColor: getColor(char, index),
+                            color: 'white',
+                        }}
+                        className="character"
+                    >
+                        {char}
+                    </span>
+                )
+                const newAttempts = [...attempts, coloredCurrent]
 
-                    setAttempts(newAttempts)
-                    setCurrent('')
-                    setFeedback('')
-                    if (current === answer) {
-                        setFeedback(GAME_WON)
-                    } else if (newAttempts.length === 6) {
-                        setFeedback(GAME_LOST)
-                    }
-                } else {
-                    setFeedback('Attempt must be 5 letters')
+                setAttempts(newAttempts)
+                setCurrent('')
+                setFeedback('')
+                if (current === answer) {
+                    setFeedback(GAME_WON)
+                } else if (newAttempts.length === 6) {
+                    setFeedback(GAME_LOST)
                 }
+            } else {
+                setFeedback('Attempt must be 5 letters')
             }
-        })
+        } else {
+            setFeedback('Word check failed. Please try again')
+        }
     }
 
     async function checkWord() {
@@ -203,7 +215,7 @@ const Board = () => {
 
         const LETTER_RANKING = [
             KEYBOARD_UNGUESSED_COLOR,
-            KEYBOARD_WRONG_COLOR,
+            WRONG,
             WRONG_POSITION,
             CORRECT_POSITION,
         ]
@@ -215,7 +227,6 @@ const Board = () => {
 
             attemptLetters.forEach((char, index) => {
                 let color = getColor(char, index);
-                if (color === WRONG) color = KEYBOARD_WRONG_COLOR
                 const currentColor = letterColorMap[char];
 
                 if (LETTER_RANKING.indexOf(color) > LETTER_RANKING.indexOf(currentColor)) {
@@ -237,8 +248,7 @@ const Board = () => {
                 </span>
             </div>
             <div className="words">
-                {attemptItems}
-                {getBlankItems()}
+                {getWords()}
             </div>
             <div className="feedback" style={{
                 color: feedback === GAME_WON ? 'black' : 'red',
@@ -258,7 +268,7 @@ const Board = () => {
                 />
             </form>
             <div className="game-buttons">
-                <button onClick={onSubmit}>Submit Word</button>
+                <button onClick={onSubmit} >Submit Word</button>
                 {[GAME_WON, GAME_LOST].includes(feedback) && <button onClick={newGame}>New Game</button>}
             </div>
 
