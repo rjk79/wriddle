@@ -299,7 +299,7 @@ const Board = () => {
 
             <div className="game-buttons">
                 {![GAME_WON, GAME_LOST].includes(feedback) && <button onClick={onSubmit} >Submit Word</button>}
-                {[GAME_WON, GAME_LOST].includes(feedback) && <button onClick={newGame} className=''>New Game</button>}
+                <button onClick={newGame} className=''>New Game</button>
             </div>
 
             {getKeyboard()}
