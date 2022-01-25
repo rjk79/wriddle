@@ -250,21 +250,21 @@ const Board = () => {
         const res = await fetch("https://type.fit/api/quotes")
         try {
             const response = await res.json();
-            setQuotes(response)
+            setQuotes(response.slice(0, 400))
         } catch {
         }
     }
 
     return (
         <div className="game">
-            <h1 className="header">Wriddle 🎉</h1>
+            <h1 className="header text-2xl font-bold">Wriddle 🎉</h1>
             <div>
                 <span>
                     Win Streak: <strong>{streak}</strong>
                     {Array(streak).fill(<span>🔥</span>)}
                 </span>
             </div>
-            <div className="words">
+            <div className="words text-2xl">
                 {getWords()}
             </div>
             <div className="feedback" style={{
@@ -274,26 +274,32 @@ const Board = () => {
                     {feedback}
                 </div>
                 {feedback === GAME_WON && (
-                    <div className="quote">
-                        <div>{quote.text}</div>
-                        <div>- {quote.author}</div>
+                    <div className="quote italic text-xs">
+                        <div className="">{quote.text}</div>
+                        <div>- {quote.author || 'unknown'}</div>
                     </div>
                 )}
             </div>
             {feedback === GAME_LOST && <div style={{ color: 'red' }}>
                 {`The word was '${answer}'.`}
             </div>}
-            <form onSubmit={onSubmit}>
-                <input
-                    value={current.toUpperCase()}
-                    onChange={e => setCurrent(e.target.value.toLowerCase())}
-                    placeholder="Guess a 5 letter word..."
-                    type="text"
-                />
-            </form>
+            {
+                ![GAME_WON, GAME_LOST].includes(feedback) && (
+                    <form onSubmit={onSubmit}>
+                        <input
+                            className="border border-black rounded focus:outline-none"
+                            value={current.toUpperCase()}
+                            onChange={e => setCurrent(e.target.value.toLowerCase())}
+                            placeholder="Guess a 5 letter word..."
+                            type="text"
+                        />
+                    </form>
+                )
+            }
+
             <div className="game-buttons">
-                <button onClick={onSubmit} >Submit Word</button>
-                {[GAME_WON, GAME_LOST].includes(feedback) && <button onClick={newGame}>New Game</button>}
+                {![GAME_WON, GAME_LOST].includes(feedback) && <button onClick={onSubmit} >Submit Word</button>}
+                {[GAME_WON, GAME_LOST].includes(feedback) && <button onClick={newGame} className=''>New Game</button>}
             </div>
 
             {getKeyboard()}
@@ -301,7 +307,7 @@ const Board = () => {
             {
                 showInstructions ? (
                     <div className="instructions">
-                        <h2>Instructions:</h2>
+                        <h2 className="font-bold text-2xl">Instructions:</h2>
                         <div className="hide" onClick={() => setShowInstructions(false)}>X</div>
                         <div>
                             Try to guess the word! It's like Mastermind and you have 6 guesses. After you guess:
@@ -316,12 +322,14 @@ const Board = () => {
                     <button onClick={() => setShowInstructions(true)}>Show Instructions</button>
                 )
             }
-            <a className="social-link" href="https://github.com/rjk79" target="_blank">
-                <img src="github.png"/>
-            </a>
-            <a className="social-link" href="https://www.linkedin.com/in/robert-ku-b9464461" target="_blank">
-                <img src="linkedin.png"/>
-            </a>
+            <div className='flex'>
+                <a className="social-link" href="https://github.com/rjk79" target="_blank">
+                    <img src="github.png"/>
+                </a>
+                <a className="social-link" href="https://www.linkedin.com/in/robert-ku-b9464461" target="_blank">
+                    <img src="linkedin.png"/>
+                </a>
+            </div>
         </div>
     )
 }
