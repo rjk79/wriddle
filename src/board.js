@@ -275,7 +275,7 @@ const Board = () => {
                 </div>
                 {feedback === GAME_WON && (
                     <div className="quote italic text-xs">
-                        <div className="">{quote.text}</div>
+                        <div className="">"{quote.text}"</div>
                         <div>- {quote.author || 'unknown'}</div>
                     </div>
                 )}
