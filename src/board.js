@@ -32,11 +32,21 @@ const Board = () => {
     const [streak, setStreak] = useState(0)
     const [showInstructions, setShowInstructions] = useState(true)
     const [loading, setLoading] = useState(false)
+    const [quotes, setQuotes] = useState([])
+    const [quote, setQuote] = useState({})
 
     useEffect(() => {
         resetWord()
         loadStreak()
+        getQuotes()
     }, [])
+
+    useEffect(() => {
+        if (quotes.length) {
+            const index = Math.floor(Math.random() * quotes.length)
+            setQuote(quotes[index])
+        }
+    }, [quotes, answer])
 
     useEffect(() => {
         if (feedback === GAME_WON) {
@@ -51,8 +61,6 @@ const Board = () => {
             saveStreak(0)
         }
     }, [feedback])
-
-
 
     function getWords() {
         const items = []
@@ -238,6 +246,15 @@ const Board = () => {
         return letterColorMap;
     }
 
+    async function getQuotes() {
+        const res = await fetch("https://type.fit/api/quotes")
+        try {
+            const response = await res.json();
+            setQuotes(response)
+        } catch {
+        }
+    }
+
     return (
         <div className="game">
             <h1 className="header">Wriddle 🎉</h1>
@@ -252,9 +269,16 @@ const Board = () => {
             </div>
             <div className="feedback" style={{
                 color: feedback === GAME_WON ? 'black' : 'red',
-                fontWeight: feedback === GAME_WON ? '700' : '400',
             }}>
-                {feedback}
+                <div style={{ fontWeight: feedback === GAME_WON ? '700' : '400',}}>
+                    {feedback}
+                </div>
+                {feedback === GAME_WON && (
+                    <div className="quote">
+                        <div>{quote.text}</div>
+                        <div>- {quote.author}</div>
+                    </div>
+                )}
             </div>
             {feedback === GAME_LOST && <div style={{ color: 'red' }}>
                 {`The word was '${answer}'.`}

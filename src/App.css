@@ -131,6 +131,10 @@ button,
   height: 30px;
 }
 
+.quote {
+  margin: 5px 0;
+}
+
 @media (max-width: 480px) {
     .game {
         width: 100%;
