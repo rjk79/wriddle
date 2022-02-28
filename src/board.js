@@ -34,6 +34,7 @@ const Board = () => {
     const [loading, setLoading] = useState(false)
     const [quotes, setQuotes] = useState([])
     const [quote, setQuote] = useState({})
+    const [defaultStart, setDefaultStart] = useState('')
 
     useEffect(() => {
         resetWord()
@@ -71,11 +72,16 @@ const Board = () => {
                         {attempts[i]}
                     </div>
                 )
-                : (
-                    <div key={i} className="word">
-                        {Array(5).fill(<span className="character"></span>)}
-                    </div>
-                )
+                : i === attempts.length
+                    ? (
+                        <div key={i} className="word">
+                            {getCurrent()}
+                        </div>
+                    ) : (
+                        <div key={i} className="word">
+                            {Array(5).fill(<span className="character"></span>)}
+                        </div>
+                    )
 
             items.push(
                 newItem
@@ -83,6 +89,22 @@ const Board = () => {
         }
 
         return items;
+    }
+
+    function getCurrent() {
+        const items = []
+        for (let i = 0; i < 5; i++) {
+            if (i < current.length) {
+                items.push(<span className="character" key={i}>{current[i]}</span>)
+            } else {
+                items.push(<span className="character" key={i}></span>)
+            }
+        }
+       return (
+            <>
+                {items}
+            </>
+        )
     }
 
     function loadStreak() {
@@ -99,7 +121,7 @@ const Board = () => {
 
     function newGame() {
         setAttempts([])
-        setCurrent('')
+        setCurrent(defaultStart)
         setFeedback('')
         resetWord()
     }
@@ -298,11 +320,16 @@ const Board = () => {
             }
 
             <div className="game-buttons">
-                {![GAME_WON, GAME_LOST].includes(feedback) && <button onClick={onSubmit} >Submit Word</button>}
-                <button onClick={newGame} className=''>New Game</button>
+                {![GAME_WON, GAME_LOST].includes(feedback) && <button className="bg-teal-400" onClick={onSubmit}>Submit Word</button>}
+                <button onClick={newGame} className='bg-teal-400'>New Game</button>
             </div>
 
             {getKeyboard()}
+
+            <div>
+                <span>Default Start: </span>
+                <input className="border border-gray-200" value={defaultStart} onChange={e => setDefaultStart(e.target.value)} />
+            </div>
 
             {
                 showInstructions ? (
@@ -322,6 +349,7 @@ const Board = () => {
                     <button onClick={() => setShowInstructions(true)}>Show Instructions</button>
                 )
             }
+
             <div className='flex'>
                 <a className="social-link" href="https://github.com/rjk79" target="_blank">
                     <img src="github.png"/>
