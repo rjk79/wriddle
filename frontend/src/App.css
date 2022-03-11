@@ -40,7 +40,8 @@
   width: 40px;
 }
 
-input, button {
+input,
+button {
   margin: 5px 0;
 }
 
@@ -136,7 +137,7 @@ button,
 }
 
 @media (max-width: 480px) {
-    .game {
-        width: 100%;
-    }
+  .game {
+    width: 100%;
+  }
 }
