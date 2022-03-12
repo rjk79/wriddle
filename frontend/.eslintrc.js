@@ -25,6 +25,6 @@ module.exports = {
     'no-else-return': 1,
     semi: [2, 'always'],
     'space-unary-ops': 2,
-    'react/prop-types': ['off']
+    'react/prop-types': [0]
   }
 };

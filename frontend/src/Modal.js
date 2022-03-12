@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useEffect } from 'react';
 import { XIcon } from '@heroicons/react/solid';
 
 const Modal = (props) => {
-  const { children, closeModal, modal } = props;
+  const { children, closeModal, modal, onMount } = props;
+
+  useEffect(() => {
+    onMount();
+  }, []);
+
   return modal ? (
     <div
       onClick={closeModal}

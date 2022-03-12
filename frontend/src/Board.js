@@ -28,7 +28,6 @@ const Board = () => {
   const [current, setCurrent] = useState('');
   const [feedback, setFeedback] = useState('');
   const [streak, setStreak] = useState(0);
-  const [loading, setLoading] = useState(false);
   const [quotes, setQuotes] = useState([]);
   const [quote, setQuote] = useState({});
   const [chosenName, setChosenName] = useState('');
@@ -83,14 +82,14 @@ const Board = () => {
         .patch(`/api/scores/${existingScore._id}`, {
           value: String(streak)
         })
-        .then((res) => getScores());
+        .then(() => getScores());
     } else {
       axios
         .post('/api/scores', {
           name: chosenName,
           value: String(streak)
         })
-        .then((res) => getScores());
+        .then(() => getScores());
     }
   }
 
@@ -174,9 +173,7 @@ const Board = () => {
       return;
     }
 
-    setLoading(true);
     const res = await checkWord();
-    setLoading(false);
     if (res.status === 404) {
       setFeedback(`Sorry, ${current} is not a word`);
     } else if (res.status === 200) {
@@ -324,17 +321,15 @@ const Board = () => {
         <div className="divide-y-2 divide-blue-100">
           {scores.map((score, index) => (
             <div key={index} className="py-2 flex">
-              <div>
+              <div className="shrink-0">
                 {index + 1}
                 {`.`}
                 {index === 0 && <>🥇</>}
                 {index === 1 && <>🥈</>}
                 {index === 2 && <>🥉</>}
               </div>
-              <span className="ml-2 flex">
-                <span className="inline-block font-bold text-base uppercase w-40 truncate">
-                  {score.name}
-                </span>
+              <span className="ml-2 flex justify-between w-full">
+                <span className="inline-block font-bold text-base uppercase">{score.name}</span>
                 <span className="font-bold text-base">{score.value}</span>
               </span>
             </div>
@@ -358,13 +353,13 @@ const Board = () => {
           className={classNames('absolute pointer-events-none', {
             hidden: feedback !== GAME_WON
           })}></canvas>
-        <Modal closeModal={() => setModal(null)} modal={modal}>
+        <Modal closeModal={() => setModal(null)} modal={modal} onMount={getScores}>
           {modalContent}
         </Modal>
         <div className="game">
           <div className="flex justify-between items-center">
             <h1 className="header text-2xl font-bold dark:text-sky-400">Wriddle 🎉</h1>
-            <div className="flex space-x-2 items-center">
+            <div className="flex space-x-4 items-center">
               <div
                 className={classNames(
                   'relative h-4 w-8 flex items-center rounded-lg cursor-pointer',

@@ -1,4 +1,4 @@
-# Payments Template
+# Wriddle
 
 
 ## Technologies:
