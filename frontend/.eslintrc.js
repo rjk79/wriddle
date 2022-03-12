@@ -23,6 +23,7 @@ module.exports = {
     indent: [1, 2],
     'no-else-return': 1,
     semi: [2, 'always'],
-    'space-unary-ops': 2
+    'space-unary-ops': 2,
+    'react/prop-types': ['off']
   }
 };

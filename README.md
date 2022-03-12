@@ -16,3 +16,5 @@
 - Eslint
 
 add key of 'proxy' to package.json to make requests to backend
+
+run 'yarn format' then 'yarn lint:fix'
