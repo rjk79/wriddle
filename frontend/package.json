@@ -30,7 +30,8 @@
     "cypress:open": "cypress open",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc"
+    "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc",
+    "reformat": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc && eslint --fix ."
   },
   "eslintConfig": {
     "extends": [

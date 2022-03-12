@@ -5,11 +5,14 @@ import classNames from 'classnames';
 import ConfettiGenerator from 'confetti-js';
 
 import Modal from './Modal';
+import Snackbar from './Snackbar.tsx';
 import { nouns } from './nouns';
 import { adjectives } from './adjectives';
 import { verbs } from './verbs';
 
 const words = [...nouns, ...adjectives, ...verbs];
+
+const victoryMessages = ['Perfect!', 'Amazing!', 'Lovely!', 'Good job!', 'Nice!', 'Nice save!'];
 
 const GAME_LOST = 'Sorry, play again? 🥺';
 const GAME_WON = 'YOU WIN! 🥳';
@@ -356,6 +359,7 @@ const Board = () => {
         <Modal closeModal={() => setModal(null)} modal={modal} onMount={getScores}>
           {modalContent}
         </Modal>
+        {feedback === GAME_WON && <Snackbar label={victoryMessages[attempts.length - 1]} />}
         <div className="game">
           <div className="flex justify-between items-center">
             <h1 className="header text-2xl font-bold dark:text-sky-400">Wriddle 🎉</h1>
@@ -405,7 +409,7 @@ const Board = () => {
           <div
             className={classNames('feedback', {
               'text-black dark:text-white': feedback === GAME_WON,
-              'text-red-700': feedback !== GAME_WON
+              'text-red-600': feedback !== GAME_WON
             })}>
             <div style={{ fontWeight: feedback === GAME_WON ? '700' : '400' }}>{feedback}</div>
             {feedback === GAME_WON && (
@@ -420,7 +424,7 @@ const Board = () => {
             )}
           </div>
           {feedback === GAME_LOST && (
-            <div style={{ color: 'red' }}>{`The word was '${answer}'.`}</div>
+            <div className="text-red-600">{`The word was '${answer}'.`}</div>
           )}
           {![GAME_WON, GAME_LOST].includes(feedback) && (
             <form onSubmit={onSubmit}>
