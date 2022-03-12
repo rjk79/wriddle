@@ -86,7 +86,7 @@ const Board = () => {
           value: String(streak)
         })
         .then(() => getScores());
-    } else {
+    } else if (chosenName && !existingScore) {
       axios
         .post('/api/scores', {
           name: chosenName,
