@@ -65,7 +65,7 @@ const Board = () => {
   }
 
   async function saveScore() {
-    const existingScore = scores.find(score => score.name === chosenName)
+    const existingScore = scores.find((score) => score.name === chosenName);
     if (existingScore) {
       axios.patch(`/api/scores/${existingScore._id}`, {
         value: String(streak)
