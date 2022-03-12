@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ChartBarIcon, QuestionMarkCircleIcon } from '@heroicons/react/solid';
+import { ChartBarIcon, QuestionMarkCircleIcon, MoonIcon, SunIcon } from '@heroicons/react/solid';
+import classNames from 'classnames';
+import ConfettiGenerator from 'confetti-js';
 
 import Modal from './Modal';
 import { nouns } from './nouns';
@@ -20,6 +22,7 @@ const KEYBOARD_UNGUESSED_COLOR = 'grey';
 const keyboardRows = ['qwertyuiop'.split(''), 'asdfghjkl'.split(''), 'zxcvbnm'.split('')];
 
 const Board = () => {
+  const characterClassName = 'border-2 border-black dark:border-white';
   const [answer, setAnswer] = useState('');
   const [attempts, setAttempts] = useState([]);
   const [current, setCurrent] = useState('');
@@ -31,6 +34,7 @@ const Board = () => {
   const [chosenName, setChosenName] = useState('');
   const [scores, setScores] = useState([]);
   const [modal, setModal] = useState(null);
+  const [nightMode, setNightMode] = useState(false);
 
   useEffect(() => {
     resetWord();
@@ -51,9 +55,6 @@ const Board = () => {
       const newStreak = streak + 1;
       setStreak(newStreak);
       saveStreak(newStreak);
-      // window.confetti({
-      //   particleCount: 150
-      // });
     } else if (feedback === GAME_LOST) {
       setStreak(0);
       saveStreak(0);
@@ -64,6 +65,14 @@ const Board = () => {
     const res = await axios.get('/api/scores');
     setScores(res.data);
   }
+
+  useEffect(() => {
+    const confettiSettings = { target: 'my-canvas' };
+    const confetti = new ConfettiGenerator(confettiSettings);
+    confetti.render();
+
+    return () => confetti.clear();
+  }, []);
 
   async function saveScore(streak) {
     const existingScore = scores.find(
@@ -99,7 +108,7 @@ const Board = () => {
           </div>
         ) : (
           <div key={i} className="word">
-            {Array(5).fill(<span className="character"></span>)}
+            {Array(5).fill(<span className={classNames('character', characterClassName)}></span>)}
           </div>
         );
 
@@ -114,12 +123,12 @@ const Board = () => {
     for (let i = 0; i < 5; i++) {
       if (i < current.length) {
         items.push(
-          <span className="character" key={i}>
+          <span className={classNames('character', characterClassName)} key={i}>
             {current[i]}
           </span>
         );
       } else {
-        items.push(<span className="character" key={i}></span>);
+        items.push(<span className={classNames('character', characterClassName)} key={i}></span>);
       }
     }
     return <>{items}</>;
@@ -179,7 +188,7 @@ const Board = () => {
               backgroundColor: getColor(char, index),
               color: 'white'
             }}
-            className="character">
+            className={classNames('character', characterClassName)}>
             {char}
           </span>
         ));
@@ -335,104 +344,145 @@ const Board = () => {
     ) : null;
 
   return (
-    <div className="w-full h-full flex justify-center">
-      <Modal closeModal={() => setModal(null)} modal={modal}>
-        {modalContent}
-      </Modal>
-      <div className="game">
-        <div className="flex justify-between items-center">
-          <h1 className="header text-2xl font-bold">Wriddle 🎉</h1>
-          <div className="flex space-x-2">
-            <ChartBarIcon
-              className="h-7 w-7 cursor-pointer"
-              onClick={() => setModal('high-scores')}
-            />
-            <QuestionMarkCircleIcon
-              className="h-7 w-7 cursor-pointer"
-              onClick={() => setModal('instructions')}
-            />
-          </div>
-        </div>
-        <div>
-          <span>
-            Win Streak: <strong> {streak}</strong>
-            {Array(streak).fill(<span>🔥</span>)}
-          </span>
-        </div>
-        <div className="words text-2xl">{getWords()}</div>
-        <div
-          className="feedback"
-          style={{
-            color: feedback === GAME_WON ? 'black' : 'red'
-          }}>
-          <div style={{ fontWeight: feedback === GAME_WON ? '700' : '400' }}>{feedback}</div>
-          {feedback === GAME_WON && (
-            <div className="quote italic text-xs">
-              <div className="">
-                {`"`}
-                {quote.text}
-                {`"`}
+    <div
+      className={classNames('', {
+        dark: nightMode
+      })}>
+      <div
+        className={classNames(
+          'w-full h-full flex justify-center dark:text-white dark:bg-slate-900',
+          {}
+        )}>
+        <canvas
+          id="my-canvas"
+          className={classNames('absolute pointer-events-none', {
+            hidden: feedback !== GAME_WON
+          })}></canvas>
+        <Modal closeModal={() => setModal(null)} modal={modal}>
+          {modalContent}
+        </Modal>
+        <div className="game">
+          <div className="flex justify-between items-center">
+            <h1 className="header text-2xl font-bold dark:text-sky-400">Wriddle 🎉</h1>
+            <div className="flex space-x-2 items-center">
+              <div
+                className={classNames(
+                  'relative h-4 w-8 flex items-center rounded-lg cursor-pointer',
+                  {
+                    'bg-sky-200': nightMode,
+                    'bg-gray-200': !nightMode
+                  }
+                )}
+                onClick={() => setNightMode(!nightMode)}>
+                <div
+                  className={classNames(
+                    '-left-2 absolute h-5 w-5 flex items-center justify-center rounded-full transition',
+                    {
+                      'transform translate-x-6': nightMode,
+                      'bg-sky-400': nightMode,
+                      'bg-gray-400': !nightMode
+                    }
+                  )}>
+                  {nightMode ? (
+                    <MoonIcon className="h-4 w-4" />
+                  ) : (
+                    <SunIcon className="h-4 w-4 text-white" />
+                  )}
+                </div>
               </div>
-              <div>- {quote.author || 'unknown'}</div>
+              <ChartBarIcon
+                className="h-7 w-7 cursor-pointer"
+                onClick={() => setModal('high-scores')}
+              />
+              <QuestionMarkCircleIcon
+                className="h-7 w-7 cursor-pointer"
+                onClick={() => setModal('instructions')}
+              />
             </div>
+          </div>
+          <div>
+            <span>
+              Win Streak: <strong> {streak}</strong>
+              {Array(streak).fill(<span>🔥</span>)}
+            </span>
+          </div>
+          <div className="words text-2xl">{getWords()}</div>
+          <div
+            className={classNames('feedback', {
+              'text-black dark:text-white': feedback === GAME_WON,
+              'text-red-700': feedback !== GAME_WON
+            })}>
+            <div style={{ fontWeight: feedback === GAME_WON ? '700' : '400' }}>{feedback}</div>
+            {feedback === GAME_WON && (
+              <div className="quote italic text-xs">
+                <div className="">
+                  {`"`}
+                  {quote.text}
+                  {`"`}
+                </div>
+                <div>- {quote.author || 'unknown'}</div>
+              </div>
+            )}
+          </div>
+          {feedback === GAME_LOST && (
+            <div style={{ color: 'red' }}>{`The word was '${answer}'.`}</div>
           )}
-        </div>
-        {feedback === GAME_LOST && (
-          <div style={{ color: 'red' }}>{`The word was '${answer}'.`}</div>
-        )}
-        {![GAME_WON, GAME_LOST].includes(feedback) && (
-          <form onSubmit={onSubmit}>
-            <input
-              className="border border-black rounded focus:outline-none"
-              value={current.toUpperCase()}
-              onChange={(e) => setCurrent(e.target.value.toLowerCase())}
-              placeholder="Guess a 5 letter word..."
-              type="text"
-            />
-          </form>
-        )}
-
-        <div className="game-buttons">
           {![GAME_WON, GAME_LOST].includes(feedback) && (
-            <button className="bg-teal-400" onClick={onSubmit}>
-              Submit Word
-            </button>
+            <form onSubmit={onSubmit}>
+              <input
+                className="border border-black rounded focus:outline-none dark:bg-transparent dark:border-white"
+                value={current.toUpperCase()}
+                onChange={(e) => setCurrent(e.target.value.toLowerCase())}
+                placeholder="Guess a 5 letter word..."
+                type="text"
+              />
+            </form>
           )}
-          <button onClick={newGame} className="bg-teal-400">
-            New Game
-          </button>
-        </div>
 
-        {getKeyboard()}
+          <div className="game-buttons space-y-2">
+            {![GAME_WON, GAME_LOST].includes(feedback) && (
+              <button
+                className="bg-teal-400 m-0 dark:bg-sky-400 dark:text-white"
+                onClick={onSubmit}>
+                Submit Word
+              </button>
+            )}
+            <button onClick={newGame} className="bg-teal-400 m-0 dark:bg-sky-400 dark:text-white">
+              New Game
+            </button>
+          </div>
 
-        <div>
-          <span>Your Name: </span>
-          <input
-            className="border border-gray-200 w-full p-2 rounded-lg m-0"
-            value={chosenName}
-            onChange={(e) => setChosenName(e.target.value)}
-            placeholder="Enter your name here..."
-          />
-          <span className="text-xs text-gray-400">
-            Enter your name to update your score whenever you win
-          </span>
-        </div>
+          {getKeyboard()}
 
-        <div className="flex">
-          <a
-            className="social-link"
-            href="https://github.com/rjk79"
-            target="_blank"
-            rel="noreferrer">
-            <img src="github.png" />
-          </a>
-          <a
-            className="social-link"
-            href="https://www.linkedin.com/in/robert-ku-b9464461"
-            target="_blank"
-            rel="noreferrer">
-            <img src="linkedin.png" />
-          </a>
+          <div>
+            <span>Your Name: </span>
+            <input
+              className="border border-gray-200 w-full p-2 rounded-lg m-0 dark:text-black"
+              value={chosenName}
+              onChange={(e) => setChosenName(e.target.value)}
+              placeholder="Enter your name here..."
+            />
+            <span className="text-xs text-gray-400">
+              As long as your name is present, your high score will update whenever you win
+            </span>
+          </div>
+
+          <div className="flex space-x-2">
+            <a
+              className="social-link  dark:bg-white rounded-lg"
+              href="https://github.com/rjk79"
+              target="_blank"
+              rel="noreferrer">
+              <img src={require('./github.png')} />
+            </a>
+            <a
+              className="social-link dark:bg-white rounded-lg"
+              href="https://www.linkedin.com/in/robert-ku-b9464461"
+              target="_blank"
+              rel="noreferrer">
+              <img src={require('./linkedin.png')} />
+            </a>
+          </div>
         </div>
       </div>
     </div>
