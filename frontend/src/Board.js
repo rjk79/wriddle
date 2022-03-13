@@ -12,7 +12,23 @@ import { verbs } from './verbs';
 
 const words = [...nouns, ...adjectives, ...verbs];
 
-const victoryMessages = ['Perfect!', 'Amazing!', 'Lovely!', 'Good job!', 'Nice!', 'Nice save!'];
+const victoryMessages = [
+  'Perfect',
+  'Amazing',
+  'Lovely',
+  'Good job',
+  'Nice',
+  'Fanastic',
+  'Bravo',
+  'Splendid',
+  'Stellar',
+  'Awesome',
+  'Great work',
+  'Excellent',
+  'Well done',
+  'Super',
+  'Way to go'
+];
 
 const GAME_LOST = 'Sorry, play again? 🥺';
 const GAME_WON = 'YOU WIN! 🥳';
@@ -37,6 +53,7 @@ const Board = () => {
   const [scores, setScores] = useState([]);
   const [modal, setModal] = useState(null);
   const [nightMode, setNightMode] = useState(false);
+  const [snackbarText, setSnackbarText] = useState('');
 
   useEffect(() => {
     resetWord();
@@ -199,6 +216,7 @@ const Board = () => {
         setFeedback('');
         if (current === answer) {
           setFeedback(GAME_WON);
+          pickSnackbar();
         } else if (newAttempts.length === 6) {
           setFeedback(GAME_LOST);
         }
@@ -208,6 +226,11 @@ const Board = () => {
     } else {
       setFeedback('Word check failed. Please try again');
     }
+  }
+
+  function pickSnackbar() {
+    const index = Math.floor(Math.random() * victoryMessages.length);
+    setSnackbarText(`${victoryMessages[index]}!`);
   }
 
   async function checkWord() {
@@ -359,7 +382,7 @@ const Board = () => {
         <Modal closeModal={() => setModal(null)} modal={modal} onMount={getScores}>
           {modalContent}
         </Modal>
-        {feedback === GAME_WON && <Snackbar label={victoryMessages[attempts.length - 1]} />}
+        {feedback === GAME_WON && <Snackbar label={snackbarText} />}
         <div className="game">
           <div className="flex justify-between items-center">
             <h1 className="header text-2xl font-bold dark:text-sky-400">Wriddle 🎉</h1>
