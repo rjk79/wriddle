@@ -345,7 +345,7 @@ const Board = () => {
       <div className="space-y-4">
         <div className="font-bold text-2xl">High Scores</div>
         <div className="divide-y-2 divide-blue-100">
-          {scores.map((score, index) => (
+          {scores.slice(0, 4).map((score, index) => (
             <div key={index} className="py-2 flex">
               <div className="shrink-0">
                 {index + 1}
