@@ -3,6 +3,7 @@ import axios from 'axios';
 import { ChartBarIcon, QuestionMarkCircleIcon, MoonIcon, SunIcon } from '@heroicons/react/solid';
 import classNames from 'classnames';
 import ConfettiGenerator from 'confetti-js';
+import { motion } from 'framer-motion';
 
 import Modal from './Modal';
 import Snackbar from './Snackbar.tsx';
@@ -126,7 +127,37 @@ const Board = () => {
       const newItem =
         i < attempts.length ? (
           <div key={i} className="word revealed">
-            {attempts[i]}
+            {attempts[i].map((char, index) => (
+              <motion.div
+                key={index}
+                animate={{ rotateY: [180, 90, 0] }}
+                className="flex items-center"
+                transition={{ duration: 0.5, delay: index * 0.5 }}>
+                <motion.span
+                  animate={{ backgroundColor: ['transparent', getColor(char, index)] }}
+                  transition={{ duration: 0.5, delay: index * 0.5 + 0.25 }}
+                  style={{
+                    color: 'white'
+                  }}
+                  className={classNames('character', characterClassName)}>
+                  {/* back of card */}
+                  <motion.div
+                    animate={{ opacity: 0, width: 0 }}
+                    transition={{ duration: 0, delay: index * 0.5 + 0.25 }}
+                    style={{ rotateY: 180 }}
+                    className="absolute w-full text-black dark:text-white text-center">
+                    {char}
+                  </motion.div>
+                  {/* front of card */}
+                  <motion.div
+                    animate={{ opacity: [0, 1] }}
+                    transition={{ duration: 0, delay: index * 0.5 + 0.25 }}
+                    className="absolute w-full text-white text-center">
+                    {char}
+                  </motion.div>
+                </motion.span>
+              </motion.div>
+            ))}
           </div>
         ) : i === attempts.length ? (
           <div key={i} className="word">
@@ -205,17 +236,7 @@ const Board = () => {
       setFeedback(`Sorry, ${current} is not a word`);
     } else if (res.status === 200) {
       if (current.length === 5) {
-        const coloredCurrent = current.split('').map((char, index) => (
-          <span
-            key={index}
-            style={{
-              backgroundColor: getColor(char, index),
-              color: 'white'
-            }}
-            className={classNames('character', characterClassName)}>
-            {char}
-          </span>
-        ));
+        const coloredCurrent = current.split('');
         const newAttempts = [...attempts, coloredCurrent];
 
         setAttempts(newAttempts);
@@ -305,9 +326,7 @@ const Board = () => {
     allLetters.forEach((char) => (letterColorMap[char] = KEYBOARD_UNGUESSED_COLOR));
 
     attempts.forEach((attempt) => {
-      const attemptLetters = attempt.map((el) => el.props.children);
-
-      attemptLetters.forEach((char, index) => {
+      attempt.forEach((char, index) => {
         let color = getColor(char, index);
         const currentColor = letterColorMap[char];
 
