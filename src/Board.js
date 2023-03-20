@@ -438,10 +438,10 @@ const Board = () => {
                   )}
                 </div>
               </div>
-              <ChartBarIcon
+              {/* <ChartBarIcon
                 className="h-7 w-7 cursor-pointer"
                 onClick={() => setModal('high-scores')}
-              />
+              /> */}
               <QuestionMarkCircleIcon
                 className="h-7 w-7 cursor-pointer"
                 onClick={() => setModal('instructions')}
@@ -502,7 +502,7 @@ const Board = () => {
 
           {getKeyboard()}
 
-          <div>
+          {/* <div>
             <span>Your Name: </span>
             <input
               className="border border-gray-200 w-full p-2 rounded-lg m-0 dark:text-black"
@@ -513,7 +513,7 @@ const Board = () => {
             <span className="text-xs text-gray-400">
               As long as your name is present, your high score will update whenever you win
             </span>
-          </div>
+          </div> */}
 
           <div className="flex space-x-2">
             <a
