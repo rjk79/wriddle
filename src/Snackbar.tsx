@@ -14,14 +14,14 @@ const Snackbar = ({ label }) => {
   return (
     <div
       className={classNames(
-        'pointer-events-none p-5 w-full h-full flex justify-center items-center fixed z-10 bg-black bg-opacity-50',
+        ' p-5 w-full h-full flex justify-center items-start pt-64 fixed z-10 bg-black bg-opacity-50',
         {
           'transition bg-opacity-0': !showing
         }
       )}>
       <div
         className={classNames(
-          'pointer-events-none w-full relative font-bold text-center text-2xl bg-white bg-opacity-70 rounded-lg p-5 sm:w-5/6 dark:bg-white dark:text-black',
+          'relative font-bold text-center text-2xl bg-white bg-opacity-70 rounded-lg p-5 sm:w-1/2 w-full dark:bg-white dark:text-black',
           {
             'opacity-0 transition': !showing
           }

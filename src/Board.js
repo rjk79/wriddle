@@ -390,9 +390,10 @@ const Board = () => {
       })}>
       <div
         className={classNames(
-          'w-full h-full flex justify-center dark:text-white dark:bg-slate-900',
+          'w-full h-full px-4 flex justify-center dark:text-white dark:bg-slate-900',
           {}
         )}>
+        {/* for confetti */}
         <canvas
           id="my-canvas"
           className={classNames('absolute pointer-events-none', {
