@@ -183,8 +183,14 @@ const Board = () => {
   }
 
   function resetWord() {
-    const index = Math.floor(Math.random() * words.length);
-    setAnswer(words[index].toLowerCase());
+    const urlParams = new URLSearchParams(window.location.search);
+    const param = urlParams.get('test');
+    if (param === 'yes') {
+      setAnswer('jolly');
+    } else {
+      const index = Math.floor(Math.random() * words.length);
+      setAnswer(words[index].toLowerCase());
+    }
   }
 
   function getColor(char, index) {
