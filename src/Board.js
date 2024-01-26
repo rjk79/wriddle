@@ -7,39 +7,17 @@ import { motion } from 'framer-motion';
 
 import Modal from './Modal';
 import Snackbar from './Snackbar.tsx';
-import { nouns } from './nouns';
-import { adjectives } from './adjectives';
-import { verbs } from './verbs';
-
-const words = [...nouns, ...adjectives, ...verbs];
-
-const victoryMessages = [
-  'Perfect',
-  'Amazing',
-  'Lovely',
-  'Good job',
-  'Nice',
-  'Fanastic',
-  'Bravo',
-  'Splendid',
-  'Stellar',
-  'Awesome',
-  'Great work',
-  'Excellent',
-  'Well done',
-  'Super',
-  'Way to go'
-];
-
-const GAME_LOST = 'Sorry, play again? 🥺';
-const GAME_WON = 'YOU WIN! 🥳';
-
-const CORRECT_POSITION = 'green';
-const WRONG_POSITION = 'darkorange';
-const WRONG = 'black';
-const KEYBOARD_UNGUESSED_COLOR = 'grey';
-
-const keyboardRows = ['qwertyuiop'.split(''), 'asdfghjkl'.split(''), 'zxcvbnm'.split('')];
+import {
+  words,
+  victoryMessages,
+  GAME_LOST,
+  GAME_WON,
+  CORRECT_POSITION,
+  WRONG_POSITION,
+  WRONG,
+  KEYBOARD_UNGUESSED_COLOR,
+  keyboardRows
+} from './constants';
 
 const Board = () => {
   const characterClassName = 'border-2 border-black dark:border-white';
@@ -390,7 +368,7 @@ const Board = () => {
       })}>
       <div
         className={classNames(
-          'w-full h-full px-4 flex justify-center dark:text-white dark:bg-slate-900',
+          'w-full h-full flex justify-center dark:text-white dark:bg-slate-900',
           {}
         )}>
         {/* for confetti */}
@@ -404,7 +382,7 @@ const Board = () => {
         </Modal>
         {feedback === GAME_WON && <Snackbar label={snackbarText} />}
         <div className="game">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center px-2">
             <h1 className="header text-2xl font-bold dark:text-sky-400">Wriddle 🎉</h1>
             <div className="flex space-x-4 items-center">
               <div
@@ -442,7 +420,7 @@ const Board = () => {
               />
             </div>
           </div>
-          <div>
+          <div className="px-2">
             <span>
               Win Streak: <strong> {streak}</strong>
               {Array(streak).fill(<span>🔥</span>)}
@@ -450,7 +428,7 @@ const Board = () => {
           </div>
           <div className="words text-2xl">{getWords()}</div>
           <div
-            className={classNames('feedback', {
+            className={classNames('px-2 feedback', {
               'text-black dark:text-white': feedback === GAME_WON,
               'text-red-600': feedback !== GAME_WON
             })}>
@@ -472,7 +450,7 @@ const Board = () => {
           {![GAME_WON, GAME_LOST].includes(feedback) && (
             <form onSubmit={onSubmit}>
               <input
-                className="border border-black rounded focus:outline-none dark:bg-transparent dark:border-white"
+                className="hidden border border-black rounded focus:outline-none dark:bg-transparent dark:border-white"
                 value={current.toUpperCase()}
                 onChange={(e) => setCurrent(e.target.value.toLowerCase())}
                 placeholder="Guess a 5 letter word..."
@@ -481,7 +459,7 @@ const Board = () => {
             </form>
           )}
 
-          <div className="game-buttons space-y-2">
+          <div className="px-2 game-buttons space-y-2">
             {![GAME_WON, GAME_LOST].includes(feedback) && (
               <button
                 className="bg-teal-400 m-0 dark:bg-sky-400 dark:text-white"
