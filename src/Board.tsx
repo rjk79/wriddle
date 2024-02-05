@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import ConfettiGenerator from 'confetti-js';
 import { motion } from 'framer-motion';
 
-import Modal from './Modal';
+import Modal from './Modal.js';
 import Snackbar from './Snackbar.tsx';
 import {
   words,
@@ -17,20 +17,30 @@ import {
   WRONG,
   KEYBOARD_UNGUESSED_COLOR,
   keyboardRows
-} from './constants';
+} from './constants.js';
+
+type Score = {
+  name: string;
+  value: number;
+};
+
+type Quote = {
+  text: string;
+  author: string;
+};
 
 const Board = () => {
   const characterClassName = 'border-2 border-black dark:border-white';
   const [answer, setAnswer] = useState('');
-  const [attempts, setAttempts] = useState([]);
+  const [attempts, setAttempts] = useState<string[][]>([]);
   const [current, setCurrent] = useState('');
   const [feedback, setFeedback] = useState('');
   const [streak, setStreak] = useState(0);
   const [quotes, setQuotes] = useState([]);
-  const [quote, setQuote] = useState({});
+  const [quote, setQuote] = useState<Quote | null>(null);
   const [chosenName, setChosenName] = useState('');
-  const [scores, setScores] = useState([]);
-  const [modal, setModal] = useState(null);
+  const [scores, setScores] = useState<Score[]>([]);
+  const [modal, setModal] = useState<'instructions' | null>(null);
   const [nightMode, setNightMode] = useState(false);
   const [snackbarText, setSnackbarText] = useState('');
 
@@ -66,34 +76,35 @@ const Board = () => {
 
   useEffect(() => {
     const confettiSettings = { target: 'my-canvas' };
+    // @ts-expect-error this is the suggested usage in the confetti docs
     const confetti = new ConfettiGenerator(confettiSettings);
     confetti.render();
 
     return () => confetti.clear();
   }, []);
 
-  async function saveScore(streak) {
-    const existingScore = scores.find(
-      (score) => score.name.toLowerCase() === chosenName.toLowerCase()
-    );
-    if (chosenName && existingScore && existingScore.value < streak) {
-      axios
-        .patch(`/api/scores/${existingScore._id}`, {
-          value: String(streak)
-        })
-        .then(() => getScores());
-    } else if (chosenName && !existingScore) {
-      axios
-        .post('/api/scores', {
-          name: chosenName,
-          value: String(streak)
-        })
-        .then(() => getScores());
-    }
-  }
+  // async function saveScore(streak) {
+  //   const existingScore = scores.find(
+  //     (score) => score.name.toLowerCase() === chosenName.toLowerCase()
+  //   );
+  //   if (chosenName && existingScore && existingScore.value < streak) {
+  //     axios
+  //       .patch(`/api/scores/${existingScore._id}`, {
+  //         value: String(streak)
+  //       })
+  //       .then(() => getScores());
+  //   } else if (chosenName && !existingScore) {
+  //     axios
+  //       .post('/api/scores', {
+  //         name: chosenName,
+  //         value: String(streak)
+  //       })
+  //       .then(() => getScores());
+  //   }
+  // }
 
   function getWords() {
-    const items = [];
+    const items: React.ReactNode[] = [];
     for (let i = 0; i < 6; i++) {
       const newItem =
         i < attempts.length ? (
@@ -147,7 +158,7 @@ const Board = () => {
   }
 
   function getCurrent() {
-    const items = [];
+    const items: React.ReactNode[] = [];
     for (let i = 0; i < 5; i++) {
       if (i < current.length) {
         items.push(
@@ -304,7 +315,7 @@ const Board = () => {
 
     attempts.forEach((attempt) => {
       attempt.forEach((char, index) => {
-        let color = getColor(char, index);
+        const color = getColor(char, index);
         const currentColor = letterColorMap[char];
 
         if (LETTER_RANKING.indexOf(color) > LETTER_RANKING.indexOf(currentColor)) {
@@ -443,10 +454,10 @@ const Board = () => {
               <div className="quote italic text-xs">
                 <div className="">
                   {`"`}
-                  {quote.text}
+                  {quote?.text}
                   {`"`}
                 </div>
-                <div>- {quote.author || 'unknown'}</div>
+                <div>- {quote?.author || 'unknown'}</div>
               </div>
             )}
           </div>
@@ -466,13 +477,6 @@ const Board = () => {
           )}
 
           <div className="px-2 game-buttons space-y-2">
-            {![GAME_WON, GAME_LOST].includes(feedback) && (
-              <button
-                className="bg-teal-400 m-0 dark:bg-sky-400 dark:text-white"
-                onClick={onSubmit}>
-                Submit Word
-              </button>
-            )}
             <button onClick={newGame} className="bg-teal-400 m-0 dark:bg-sky-400 dark:text-white">
               New Game
             </button>

@@ -3,7 +3,7 @@ import './App.css';
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-import Board from './Board.js';
+import Board from './Board.tsx';
 
 function App() {
   return (
