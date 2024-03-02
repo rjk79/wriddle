@@ -357,7 +357,9 @@ const Board = () => {
       <div className="instructions">
         <h2 className="font-bold text-2xl">Instructions:</h2>
         <div>
-          Try to guess the word! It{`'`}s like Mastermind and you have 6 guesses. After you guess:
+          Try to guess the word! It{`'`}s like Mastermind and you have 6 guesses. Each guess must be
+          5 letters and you can input letters using either your physical keyboard or the virtual
+          keyboard. After you guess:
           <ul>
             <li>
               If a letter is not in the word, it will appear{' '}
@@ -399,7 +401,7 @@ const Board = () => {
 
   return (
     <div
-      className={classNames('', {
+      className={classNames('h-full', {
         dark: nightMode
       })}>
       <div
