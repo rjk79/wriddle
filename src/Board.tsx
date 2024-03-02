@@ -77,7 +77,7 @@ const Board = () => {
 
   function keyboardListener(e) {
     if (/^[a-z]$/i.test(e.key)) {
-      setCurrent(current + e.key);
+      addLetter(e.key);
     } else if (e.key === 'Enter') {
       onSubmit(e);
     } else if (e.key === 'Backspace') {
@@ -302,6 +302,12 @@ const Board = () => {
     );
   }
 
+  function addLetter(letter) {
+    if (current.length < 5) {
+      setCurrent(current + letter);
+    }
+  }
+
   function getKeyboardRow(row) {
     const letterColorMap = getLetterColorMap();
 
@@ -317,7 +323,7 @@ const Board = () => {
         style={{
           color: letterColorMap[char] === KEYBOARD_UNGUESSED_COLOR ? 'black' : 'white'
         }}
-        onClick={() => setCurrent(current + char)}>
+        onClick={() => addLetter(char)}>
         {char}
       </button>
     ));
@@ -485,7 +491,7 @@ const Board = () => {
           {feedback === GAME_LOST && (
             <div className="text-red-600">{`The word was '${answer}'.`}</div>
           )}
-          {![GAME_WON, GAME_LOST].includes(feedback) && (
+          {/* {![GAME_WON, GAME_LOST].includes(feedback) && (
             <form onSubmit={onSubmit}>
               <input
                 className="hidden border border-black rounded focus:outline-none dark:bg-transparent dark:border-white"
@@ -495,7 +501,7 @@ const Board = () => {
                 type="text"
               />
             </form>
-          )}
+          )} */}
 
           <div className="px-2 game-buttons space-y-2">
             <button onClick={newGame} className="bg-teal-400 m-0 dark:bg-sky-400 dark:text-white">
