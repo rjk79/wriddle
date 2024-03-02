@@ -45,6 +45,12 @@ const Board = () => {
   const [snackbarText, setSnackbarText] = useState('');
 
   useEffect(() => {
+    window.addEventListener('keyup', keyboardListener);
+
+    return () => window.removeEventListener('keyup', keyboardListener);
+  }, [keyboardListener]);
+
+  useEffect(() => {
     resetWord();
     loadStreak();
     getQuotes();
@@ -68,6 +74,16 @@ const Board = () => {
       saveStreak(0);
     }
   }, [feedback]);
+
+  function keyboardListener(e) {
+    if (/^[a-z]$/i.test(e.key)) {
+      setCurrent(current + e.key);
+    } else if (e.key === 'Enter') {
+      onSubmit(e);
+    } else if (e.key === 'Backspace') {
+      setCurrent(current.slice(0, current.length - 1));
+    }
+  }
 
   async function getScores() {
     const res = await axios.get('/api/scores');
@@ -269,14 +285,14 @@ const Board = () => {
           <div key={index}>
             {index === keyboardRows.length - 1 && (
               <button
-                className="keyboard-command"
+                className="keyboard-command hover:bg-blue-100"
                 onClick={() => setCurrent(current.slice(0, current.length - 1))}>
                 DEL
               </button>
             )}
             {getKeyboardRow(row)}
             {index === keyboardRows.length - 1 && (
-              <button className="keyboard-command" onClick={onSubmit}>
+              <button className="keyboard-command hover:bg-blue-100" onClick={onSubmit}>
                 ENTER
               </button>
             )}
@@ -292,11 +308,14 @@ const Board = () => {
     return row.map((char, index) => (
       <button
         key={index}
-        className="keyboard-character"
+        className={classNames('keyboard-character hover:bg-blue-100', {
+          'bg-[#008000]': letterColorMap[char] === CORRECT_POSITION,
+          'bg-[#FF8C00]': letterColorMap[char] === WRONG_POSITION,
+          'bg-black': letterColorMap[char] === WRONG,
+          'bg-white': letterColorMap[char] === KEYBOARD_UNGUESSED_COLOR
+        })}
         style={{
-          color: letterColorMap[char] === KEYBOARD_UNGUESSED_COLOR ? 'black' : 'white',
-          backgroundColor:
-            letterColorMap[char] !== KEYBOARD_UNGUESSED_COLOR ? letterColorMap[char] : 'white'
+          color: letterColorMap[char] === KEYBOARD_UNGUESSED_COLOR ? 'black' : 'white'
         }}
         onClick={() => setCurrent(current + char)}>
         {char}
